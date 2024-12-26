@@ -5,7 +5,7 @@
 # 数据库类型，可选 sqlite 与 mysql
 type: sqlite
 # 表名前缀
-table_prefix: 'pluginbase_'
+table_prefix: 'sweetafdian_'
 # JDBC 参数
 query: 'useSSL=false&allowPublicKeyRetrieval=true&verifyServerCertificate=false&serverTimezone=UTC'
 # 连接池设置

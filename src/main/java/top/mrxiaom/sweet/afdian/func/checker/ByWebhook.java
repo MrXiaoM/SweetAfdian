@@ -17,6 +17,7 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optObject;
+import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optString;
 
 public class ByWebhook {
     AfdianOrderReceiver parent;
@@ -47,7 +48,10 @@ public class ByWebhook {
                         JsonObject json = element.getAsJsonObject();
                         JsonObject data = optObject(json, "data");
                         JsonObject order = optObject(data, "order");
-                        parent.handleReceiveOrder(order);
+                        String outTradeNo = optString(order, "out_trade_no", null);
+                        if (outTradeNo != null) {
+                            parent.handleReceiveOrder(outTradeNo, order);
+                        }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
                     }
                 }

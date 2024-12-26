@@ -3,6 +3,7 @@ package top.mrxiaom.sweet.afdian;
 import org.jetbrains.annotations.NotNull;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.EconomyHolder;
+import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
 
 public class SweetAfdian extends BukkitPlugin {
     public static SweetAfdian getInstance() {
@@ -19,12 +20,16 @@ public class SweetAfdian extends BukkitPlugin {
                 .scanIgnore("top.mrxiaom.sweet.afdian.libs")
         );
     }
+    ProceedOrderDatabase proceedOrder;
 
+    public ProceedOrderDatabase getProceedOrder() {
+        return proceedOrder;
+    }
 
     @Override
     protected void beforeEnable() {
         options.registerDatabase(
-                // 在这里添加数据库 (如果需要的话)
+                proceedOrder = new ProceedOrderDatabase(this)
         );
     }
 

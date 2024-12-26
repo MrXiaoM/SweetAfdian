@@ -12,6 +12,10 @@ import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
@@ -46,12 +50,23 @@ public class ByAPI {
         JsonObject params = new JsonObject();
         params.addProperty("page", 1);
         JsonObject result = ByAPI.request(path, parent.getUserId(), parent.getApiToken(), params);
+        Map<String, JsonObject> ordersMap = new HashMap<>();
         if (optInt(result, "ec", 0) == 200) {
             JsonObject data = optObject(result, "data");
             JsonArray list = optArray(data, "list");
             for (JsonElement element : list) {
                 JsonObject order = element.getAsJsonObject();
-                parent.handleReceiveOrder(order);
+                String outTradeNo = optString(order, "out_trade_no", null);
+                if (outTradeNo == null) continue;
+                ordersMap.put(outTradeNo, order);
+            }
+        }
+        List<String> outTradeNos = new ArrayList<>(ordersMap.keySet());
+        List<String> keys = parent.plugin.getProceedOrder().filterOrders(outTradeNos);
+        for (String key : keys) {
+            JsonObject order = ordersMap.get(key);
+            if (order != null) {
+                parent.handleReceiveOrder(key, order);
             }
         }
     }

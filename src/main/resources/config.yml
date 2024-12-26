@@ -18,6 +18,16 @@ polling_api:
   # 是否忽略执行所有查询到的订单，用于初次安装插件，同步爱发电数据使用
   ignore-all: true
 
+player-name:
+  # 订单备注去除首尾空格后，完全匹配这个正则表达式，才执行相应操作
+  # 中文名：‘[a-zA-Z0-9_\u4e00-\u9fa5]*'
+  # 英文名：‘[a-zA-Z0-9_]*'
+  pattern: '[a-zA-Z0-9_]*'
+  # 最小长度
+  min-length: 3
+  # 最大长度
+  max-length: 20
+
 # 爱发电API设置，用户ID 和 API Token 到开发者中心获取
 # https://afdian.com/dashboard/dev
 api:
