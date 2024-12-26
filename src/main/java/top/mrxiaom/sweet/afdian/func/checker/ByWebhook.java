@@ -1,9 +1,6 @@
 package top.mrxiaom.sweet.afdian.func.checker;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import com.sun.net.httpserver.HttpExchange;
 import com.sun.net.httpserver.HttpServer;
 import org.bukkit.configuration.MemoryConfiguration;
@@ -16,8 +13,8 @@ import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
-import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optObject;
-import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optString;
+import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
+import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optArray;
 
 public class ByWebhook {
     AfdianOrderReceiver parent;
@@ -27,10 +24,10 @@ public class ByWebhook {
         this.parent = parent;
     }
 
-    private void setupWebHookServer(int port, String path) {
+    private void setupWebHookServer(int port, String hookPath) {
         try {
             server = HttpServer.create(new InetSocketAddress(port), 0);
-            createContext(path, exchange -> {
+            createContext(hookPath, exchange -> {
                 if (!exchange.getRequestMethod().equals("POST")) {
                     exchange.sendResponseHeaders(404, 0);
                     exchange.getRequestBody().close();
@@ -51,9 +48,29 @@ public class ByWebhook {
                         JsonObject order = optObject(data, "order");
                         String outTradeNo = optString(order, "out_trade_no", null);
                         if (outTradeNo != null) {
-                            parent.info("收到新的订单 " + outTradeNo + " " + optString(order, "remark", ""));
+                            boolean leak = false;
                             if (!ignoreAll) {
-                                parent.handleReceiveOrder(outTradeNo, order);
+                                leak = true;
+                                String path = "/api/open/query-order";
+                                JsonObject params = new JsonObject();
+                                params.addProperty("per_page", 1);
+                                params.addProperty("out_trade_no", outTradeNo);
+                                JsonObject result = ByAPI.request(path, parent.getUserId(), parent.getApiToken(), params);
+                                if (optInt(result, "ec", 0) == 200) {
+                                    JsonObject data1 = optObject(result, "data");
+                                    JsonArray list = optArray(data1, "list");
+                                    for (JsonElement element1 : list) {
+                                        JsonObject realOrder = element1.getAsJsonObject();
+                                        parent.handleReceiveOrder(outTradeNo, realOrder);
+                                        leak = false;
+                                        break;
+                                    }
+                                }
+                            }
+                            if (leak) {
+                                parent.warn("WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
+                            } else {
+                                parent.info("收到新的订单 " + outTradeNo + " " + optString(order, "remark", ""));
                             }
                         }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
