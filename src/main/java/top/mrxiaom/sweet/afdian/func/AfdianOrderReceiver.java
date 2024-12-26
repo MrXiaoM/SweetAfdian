@@ -132,7 +132,7 @@ public class AfdianOrderReceiver extends AbstractModule {
                 String pic = optString(object, "pic", null);
                 String stock = optString(object, "stock", null);
                 String postId = optString(object, "post_id", null);
-                Double priceDouble = Util.parseDouble(totalAmount).orElse(null);
+                Double priceDouble = Util.parseDouble(price).orElse(null);
                 if (skuId == null || name == null || priceDouble == null) continue;
                 String key = planTitle + ":" + name;
                 ShopItem shopItem = electricShop.get(key);
