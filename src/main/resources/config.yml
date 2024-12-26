@@ -1,0 +1,25 @@
+# 工作模式
+# WEB_HOOK 或 POLLING_API
+mode: WEB_HOOK
+# 在 WEB_HOOK 模式（WebHook）下的配置
+web_hook:
+  # WebHook 端口号
+  port: 8087
+  # 接收地址，最终 WebHook 地址为
+  # http://<你的服务器IP>:端口/接收地址
+  # 建议将地址设置得尽量复杂，并且套 Cloudflare Tunnel，不要与服务器共用同一个二级域名
+  path: /api/afdian/hook
+# 在 POLLING_API 模式（轮询API）下的配置
+polling_api:
+  # 多少秒轮询一次爱发电订单列表API
+  period_seconds: 30
+  # 一次拉取多少个订单，支持 1-100
+  limit_count: 50
+  # 是否忽略执行所有查询到的订单，用于初次安装插件，同步爱发电数据使用
+  ignore-all: true
+
+# 爱发电API设置，用户ID 和 API Token 到开发者中心获取
+# https://afdian.com/dashboard/dev
+api:
+  user_id: ''
+  token: ''

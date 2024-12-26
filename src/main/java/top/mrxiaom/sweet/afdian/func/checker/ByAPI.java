@@ -1,24 +1,38 @@
 package top.mrxiaom.sweet.afdian.func.checker;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonParser;
-import com.google.gson.JsonSyntaxException;
+import com.google.gson.*;
 import org.bukkit.Bukkit;
-import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.scheduler.BukkitTask;
+import top.mrxiaom.sweet.afdian.func.AfdianOrderReceiver;
 
 import java.io.*;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
-import java.net.URLConnection;
 import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class ByAPI extends BukkitRunnable {
+import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
+
+public class ByAPI {
+    AfdianOrderReceiver parent;
     BukkitTask task;
+    int limitOrder;
+    boolean ignoreAll;
+    public ByAPI(AfdianOrderReceiver parent) {
+        this.parent = parent;
+    }
+
+    public void reload(MemoryConfiguration config) {
+        stopTask();
+        if (CheckerMode.POLLING_API.equals(parent.getMode()) && parent.configuredApi()) {
+            long period = config.getLong("polling_api.period_seconds", 30L) * 20L;
+            limitOrder = config.getInt("polling_api.limit_order", 50);
+            ignoreAll = config.getBoolean("polling_api.ignore_all", true);
+            task = Bukkit.getScheduler().runTaskTimerAsynchronously(parent.plugin, this::run, period, period);
+        }
+    }
 
     public void stopTask() {
         if (task != null) {
@@ -27,9 +41,19 @@ public class ByAPI extends BukkitRunnable {
         }
     }
 
-    @Override
-    public void run() {
-
+    private void run() {
+        String path = "/api/open/query-order";
+        JsonObject params = new JsonObject();
+        params.addProperty("page", 1);
+        JsonObject result = ByAPI.request(path, parent.getUserId(), parent.getApiToken(), params);
+        if (optInt(result, "ec", 0) == 200) {
+            JsonObject data = optObject(result, "data");
+            JsonArray list = optArray(data, "list");
+            for (JsonElement element : list) {
+                JsonObject order = element.getAsJsonObject();
+                parent.handleReceiveOrder(order);
+            }
+        }
     }
 
     public static JsonObject request(String path, String userId, String token, JsonObject params) {
