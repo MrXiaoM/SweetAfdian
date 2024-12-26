@@ -1,0 +1,11 @@
+name: SweetAfdian
+version: '${version}'
+main: top.mrxiaom.sweet.afdian.SweetAfdian
+api-version: 1.13
+depend: [  ]
+softdepend: [ PlaceholderAPI ]
+authors: [ MrXiaoM ]
+commands:
+  sweetafdian:
+    description: 'The main command of SweetAfdian'
+    aliases: [ safd, sponsor ]
