@@ -22,6 +22,7 @@ import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optString;
 public class ByWebhook {
     AfdianOrderReceiver parent;
     HttpServer server;
+    boolean ignoreAll;
     public ByWebhook(AfdianOrderReceiver parent) {
         this.parent = parent;
     }
@@ -50,7 +51,10 @@ public class ByWebhook {
                         JsonObject order = optObject(data, "order");
                         String outTradeNo = optString(order, "out_trade_no", null);
                         if (outTradeNo != null) {
-                            parent.handleReceiveOrder(outTradeNo, order);
+                            parent.info("收到新的订单 " + outTradeNo + " " + optString(order, "remark", ""));
+                            if (!ignoreAll) {
+                                parent.handleReceiveOrder(outTradeNo, order);
+                            }
                         }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
                     }
@@ -91,6 +95,7 @@ public class ByWebhook {
     public void reload(MemoryConfiguration config) {
         stopWebHook();
         if (CheckerMode.WEB_HOOK.equals(parent.getMode())) {
+            ignoreAll = config.getBoolean("web_hook.ignore-all", true);
             int port = config.getInt("web_hook.port", 8087);
             String path = config.getString("web_hook.path", "/api/afdian/hook");
             setupWebHookServer(port, path);

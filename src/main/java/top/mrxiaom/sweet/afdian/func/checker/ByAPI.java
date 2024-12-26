@@ -65,7 +65,9 @@ public class ByAPI {
         List<String> keys = parent.plugin.getProceedOrder().filterOrders(outTradeNos);
         for (String key : keys) {
             JsonObject order = ordersMap.get(key);
-            if (order != null) {
+            if (order == null) continue;
+            parent.info("收到新的订单 " + key + " " + optString(order, "remark", ""));
+            if (!ignoreAll) {
                 parent.handleReceiveOrder(key, order);
             }
         }
