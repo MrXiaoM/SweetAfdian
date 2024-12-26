@@ -30,6 +30,44 @@ player-name:
   # 最大长度
   max-length: 20
 
+# 收到一般赞助
+product-normal:
+  # 赞助金额处理
+  point:
+    # 乘数
+    scale: 10
+    # 四舍五入方式
+    # floor 向下取整，ceil 向上取整，round 四舍五入，
+    # 输入数字即保留N位小数，比如2保留两位小数
+    rounding: floor
+  # 收到一般赞助执行的命令
+  # [console]控制台命令
+  # [message]提示玩家（如果玩家在线的话）
+  # 由于收到订单完成通知时，玩家不一定在线，故不支持 PAPI 变量
+  # 可用的变量如下
+  # %player% 为玩家名，
+  # %money% 为原始金额（带两位小数点）
+  # %point% 为处理后金额（按配置处理）
+  commands:
+    - '[console]points give %player% %point%'
+# 收到电铺订单
+product-shop:
+  # 商品名称，在爱发电创建的时候不要重名
+  测试商品:
+    # 型号名称
+    测试型号:
+      # 同 product-normal.point
+      point:
+        scale: 1
+        rounding: floor
+      # 执行类型
+      # point：point的值乘以购买数量，只执行一次 commands 列表
+      # command：执行 购买数量 次数的 commands 列表
+      type: command
+      # 同 product-normal.commands
+      commands:
+        - '[console]lp user %player% parent add vip'
+
 # 爱发电API设置，用户ID 和 API Token 到开发者中心获取
 # https://afdian.com/dashboard/dev
 api:
