@@ -1,7 +1,9 @@
 package top.mrxiaom.sweet.afdian;
         
 import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.entity.Player;
+import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.utils.PAPI;
 import top.mrxiaom.pluginbase.utils.Pair;
@@ -53,15 +55,21 @@ public class SweetAfdian extends BukkitPlugin {
     }
 
     @SafeVarargs
-    public final void runCommands(String playerName, List<String> commands, Pair<String, Object>... replacements) {
-        Player player = Util.getOnlinePlayer(playerName).orElse(null);
-        for (String str : commands) {
+    public final void runCommands(String playerName, @Nullable Player player, List<String> commands, Pair<String, Object>... replacements) {
+        OfflinePlayer offline = player != null ? player : Util.getOfflinePlayer(playerName).orElse(null);
+        List<String> list = offline == null ? commands : PAPI.setPlaceholders(offline, commands);
+        for (String str : list) {
             String s = Pair.replace(str, replacements);
             if (s.startsWith("[console]")) {
                 Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.substring(9));
             }
-            if (s.startsWith("[message]") && player != null) {
-                t(player, PAPI.setPlaceholders(player, s.substring(9)));
+            if (player != null) {
+                if (s.startsWith("[player]")) {
+                    Bukkit.dispatchCommand(player, s.substring(8));
+                }
+                if (s.startsWith("[message]")) {
+                    t(player, s.substring(9));
+                }
             }
         }
     }

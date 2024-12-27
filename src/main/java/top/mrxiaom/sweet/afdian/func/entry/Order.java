@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.afdian.func.entry;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.entity.Player;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.afdian.SweetAfdian;
@@ -11,14 +12,21 @@ import java.util.function.Function;
 
 public class Order {
     public final Function<Double, String> pointTransformer;
+    public final boolean requireOnline;
     public final List<String> commands;
 
-    public Order(Function<Double, String> pointTransformer, List<String> commands) {
+    public Order(Function<Double, String> pointTransformer, boolean requireOnline, List<String> commands) {
         this.pointTransformer = pointTransformer;
+        this.requireOnline = requireOnline;
         this.commands = commands;
     }
 
     public void execute(SweetAfdian plugin, String player, Double money, String point, int times, String person, String phone, String address) {
+        Player realPlayer = Util.getOnlinePlayer(player).orElse(null);
+        if (realPlayer == null && requireOnline) {
+            SweetAfdian.getInstance().warn("执行要求玩家在线的订单操作时，玩家 " + player + " 不在线");
+            return;
+        }
         Pair<String, Object>[] array = Pair.array(6);
         array[0] = Pair.of("%player%", player);
         array[1] = Pair.of("%money%", money);
@@ -28,7 +36,7 @@ public class Order {
         array[5] = Pair.of("%address%", address);
         Bukkit.getScheduler().runTask(plugin, () -> {
             for (int i = 0; i < times; i++) {
-                plugin.runCommands(player, commands, array);
+                plugin.runCommands(player, realPlayer, commands, array);
             }
         });
     }
@@ -50,7 +58,8 @@ public class Order {
                 transformer = d -> String.valueOf((int) Math.floor(d * scale));
             }
         }
+        boolean requireOnline = section.getBoolean(key + ".require-online", false);
         List<String> commands = section.getStringList(key + ".commands");
-        return new Order(transformer, commands);
+        return new Order(transformer, requireOnline, commands);
     }
 }

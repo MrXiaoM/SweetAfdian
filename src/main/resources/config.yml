@@ -33,7 +33,7 @@ player-name:
 
 # 收到一般赞助
 product-normal:
-  # 赞助金额处理
+  # 赞助金额处理（可选，默认为 10, floor）
   point:
     # 乘数
     scale: 10
@@ -41,14 +41,21 @@ product-normal:
     # floor 向下取整，ceil 向上取整，round 四舍五入，
     # 输入数字即保留N位小数，比如2保留两位小数
     rounding: floor
+  # 是否要求玩家在线（可选，默认为 false）
+  require-online: false
   # 收到一般赞助执行的命令
   # [console]控制台命令
+  # [player]玩家命令（如果玩家在线的话）
   # [message]提示玩家（如果玩家在线的话）
-  # 由于收到订单完成通知时，玩家不一定在线，故不支持 PAPI 变量
+  # 由于收到订单完成通知时，玩家不一定在线，仅玩家在线时支持完整的 PAPI 变量，建议配合 require-online 使用
   # 可用的变量如下
   # %player% 为玩家名，
   # %money% 为原始金额（带两位小数点）
   # %point% 为处理后金额（按配置处理）
+  # 以下变量仅在用户填写时有效，可能为空
+  # %person% 联系方式 姓名
+  # %phone% 联系方式 电话号码
+  # %address% 联系方式 地址
   commands:
     - '[console]points give %player% %point%'
 # 收到电铺订单
@@ -61,7 +68,9 @@ product-shop:
       point:
         scale: 1
         rounding: floor
-      # 执行类型
+      # 同 product-normal.require-online
+      require-online: false
+      # 执行类型（可选，默认为 command）
       # point：point的值乘以购买数量，只执行一次 commands 列表
       # command：执行 购买数量 次数的 commands 列表
       type: command
