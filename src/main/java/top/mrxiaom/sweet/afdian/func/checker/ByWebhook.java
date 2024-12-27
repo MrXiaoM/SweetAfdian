@@ -74,9 +74,10 @@ public class ByWebhook {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
                                 if (isTestOrder) {
-                                    parent.info("[" + hostName + "] 成功收到爱发电测试订单");
+                                    parent.info("[" + hostName + "] 成功收到爱发电测试订单 " + optString(order, "plan_title", ""));
+                                } else {
+                                    parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
                                 }
-                                parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
                             }
                         }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
