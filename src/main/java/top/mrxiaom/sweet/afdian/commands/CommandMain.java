@@ -39,12 +39,20 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     private static final List<String> emptyList = Lists.newArrayList();
     private static final List<String> listArg0 = Lists.newArrayList();
+    private static final List<String> listArgReload = Lists.newArrayList("database");
     private static final List<String> listOpArg0 = Lists.newArrayList("reload");
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
         if (args.length == 1) {
             return startsWith(sender.isOp() ? listOpArg0 : listArg0, args[0]);
+        }
+        if (args.length == 2) {
+            if (sender.isOp()) {
+                if ("reload".equalsIgnoreCase(args[0])) {
+                    return startsWith(listArgReload, args[1]);
+                }
+            }
         }
         return emptyList;
     }
