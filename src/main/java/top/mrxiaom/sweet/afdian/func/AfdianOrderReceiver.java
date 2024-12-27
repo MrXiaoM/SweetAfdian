@@ -89,7 +89,8 @@ public class AfdianOrderReceiver extends AbstractModule {
         int length = s.length();
         if (length < playerNameMinLength || length > playerNameMaxLength) return false;
         Matcher m = playerNamePattern.matcher(s);
-        return m.matches() && m.start() == 0 && m.end() == length;
+        boolean match = m.matches() && m.start() == 0 && m.end() == length;
+        return match && Util.getOfflinePlayer(s).isPresent();
     }
 
     public void handleReceiveOrder(@NotNull String outTradeNo, JsonObject obj) {
