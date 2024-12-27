@@ -1,5 +1,5 @@
 package top.mrxiaom.sweet.afdian.commands;
-        
+
 import com.google.common.collect.Lists;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -12,7 +12,9 @@ import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.afdian.SweetAfdian;
 import top.mrxiaom.sweet.afdian.func.AbstractModule;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
 
 @AutoRegister
 public class CommandMain extends AbstractModule implements CommandExecutor, TabCompleter, Listener {

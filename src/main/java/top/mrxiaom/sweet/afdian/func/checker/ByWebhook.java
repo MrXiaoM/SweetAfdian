@@ -14,7 +14,6 @@ import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
 
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
-import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optArray;
 
 public class ByWebhook {
     AfdianOrderReceiver parent;

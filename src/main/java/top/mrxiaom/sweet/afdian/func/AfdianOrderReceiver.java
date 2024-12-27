@@ -23,7 +23,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
-import static top.mrxiaom.sweet.afdian.utils.JsonUtils.optString;
 
 @AutoRegister
 public class AfdianOrderReceiver extends AbstractModule {
