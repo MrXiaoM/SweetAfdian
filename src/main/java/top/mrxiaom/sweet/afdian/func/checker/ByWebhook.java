@@ -49,10 +49,9 @@ public class ByWebhook {
                         String outTradeNo = optString(order, "out_trade_no", null);
                         if (parent.plugin.debug) parent.info(json.toString());
                         if (outTradeNo != null) {
-                            boolean leak = false;
                             boolean isTestOrder = outTradeNo.equals("202106232138371083454010626");
+                            JsonObject leakCheck = null;
                             if (!ignoreAll && !isTestOrder) {
-                                leak = true;
                                 String path = "/api/open/query-order";
                                 JsonObject params = new JsonObject();
                                 params.addProperty("per_page", 1);
@@ -62,22 +61,19 @@ public class ByWebhook {
                                     JsonObject data1 = optObject(result, "data");
                                     JsonArray list = optArray(data1, "list");
                                     for (JsonElement element1 : list) {
-                                        JsonObject realOrder = element1.getAsJsonObject();
-                                        parent.handleReceiveOrder(outTradeNo, realOrder);
-                                        leak = false;
+                                        leakCheck = element1.getAsJsonObject();
                                         break;
                                     }
                                 }
                             }
                             String hostName = exchange.getRemoteAddress().getHostName();
-                            if (leak) {
+                            if (isTestOrder) {
+                                parent.info("[" + hostName + "] 成功收到爱发电测试订单 " + optString(order, "plan_title", ""));
+                            } else if (leakCheck == null) {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
-                                if (isTestOrder) {
-                                    parent.info("[" + hostName + "] 成功收到爱发电测试订单 " + optString(order, "plan_title", ""));
-                                } else {
-                                    parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
-                                }
+                                parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
+                                parent.handleReceiveOrder(outTradeNo, leakCheck);
                             }
                         }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
