@@ -53,7 +53,7 @@ public class ProceedOrderDatabase extends AbstractPluginHolder implements IDatab
         List<String> list = new ArrayList<>();
         try (Connection conn = plugin.getConnection()) {
             try (PreparedStatement ps = conn.prepareStatement(
-                    "CREATE TEMPORARY TABLE `SWEET_AFDIAN_TEMP_TABLE` if NOT EXISTS(`out_trade_no` VARCHAR(36));"
+                    "CREATE TEMPORARY TABLE if NOT EXISTS `SWEET_AFDIAN_TEMP_TABLE`(`out_trade_no` VARCHAR(36));"
             )) { ps.execute(); }
             try (PreparedStatement ps = conn.prepareStatement(
                     "INSERT INTO `SWEET_AFDIAN_TEMP_TABLE`(`out_trade_no`) VALUES(?);"
