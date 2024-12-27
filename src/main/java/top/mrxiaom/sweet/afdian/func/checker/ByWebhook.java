@@ -47,6 +47,7 @@ public class ByWebhook {
                         JsonObject data = optObject(json, "data");
                         JsonObject order = optObject(data, "order");
                         String outTradeNo = optString(order, "out_trade_no", null);
+                        if (parent.plugin.debug) parent.info(json.toString());
                         if (outTradeNo != null) {
                             boolean leak = false;
                             if (!ignoreAll) {

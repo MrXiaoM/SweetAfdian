@@ -28,6 +28,7 @@ public class SweetAfdian extends BukkitPlugin {
         );
     }
     ProceedOrderDatabase proceedOrder;
+    public boolean debug;
 
     public ProceedOrderDatabase getProceedOrder() {
         return proceedOrder;
@@ -43,6 +44,12 @@ public class SweetAfdian extends BukkitPlugin {
     @Override
     protected void afterEnable() {
         getLogger().info("SweetAfdian 加载完毕");
+    }
+
+    @Override
+    public void reloadConfig() {
+        super.reloadConfig();
+        debug = getConfig().getBoolean("debug", false);
     }
 
     @SafeVarargs

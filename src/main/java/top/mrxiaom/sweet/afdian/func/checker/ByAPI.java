@@ -67,6 +67,7 @@ public class ByAPI {
             JsonObject order = ordersMap.get(key);
             if (order == null) continue;
             parent.info("收到新的订单 " + key + " " + optString(order, "remark", ""));
+            if (parent.plugin.debug) parent.info(order.toString());
             if (!ignoreAll) {
                 parent.handleReceiveOrder(key, order);
             }

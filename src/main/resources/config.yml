@@ -1,3 +1,4 @@
+debug: false
 # 工作模式
 # WEB_HOOK 或 POLLING_API
 mode: WEB_HOOK
