@@ -17,7 +17,7 @@ public class ProceedOrderDatabase extends AbstractPluginHolder implements IDatab
     public void reload(Connection connection, String s) throws SQLException {
         TABLE_NAME = (s + "orders").toUpperCase();
         try (PreparedStatement ps = connection.prepareStatement(
-                "CREATE TABLE `" + TABLE_NAME + "` if NOT EXISTS(" +
+                "CREATE TABLE if NOT EXISTS `" + TABLE_NAME + "`(" +
                         "`out_trade_no` VARCHAR(36) PRIMARY KEY," +
                         "`order` LONGTEXT" +
                 ");"
