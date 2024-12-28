@@ -11,6 +11,7 @@ web_hook:
   # 建议将地址设置得尽量复杂，并且套 Cloudflare Tunnel，不要与服务器共用同一个二级域名
   path: /api/afdian/hook
   # 是否忽略执行所有提交上来的订单，用于测试 webhook 是否工作正常
+  # 确认工作正常后，应该关闭此项
   ignore-all: true
 # 在 POLLING_API 模式（轮询API）下的配置
 polling_api:
@@ -18,7 +19,8 @@ polling_api:
   period_seconds: 30
   # 一次拉取多少个订单，支持 1-100
   limit_count: 50
-  # 是否忽略执行所有查询到的订单，用于初次安装插件，同步爱发电数据使用
+  # 是否忽略执行所有查询到的订单，用于初次安装插件，或从 WebHook 切换到此模式时，同步爱发电数据使用
+  # 确认工作正常后，应该关闭此项
   ignore-all: true
 
 player-name:
