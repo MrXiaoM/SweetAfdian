@@ -61,11 +61,15 @@ public class SweetAfdian extends BukkitPlugin {
         for (String str : list) {
             String s = Pair.replace(str, replacements);
             if (s.startsWith("[console]")) {
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), s.substring(9));
+                String command = s.substring(9);
+                getInstance().getLogger().info("[执行命令] " + command);
+                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
             }
             if (player != null) {
                 if (s.startsWith("[player]")) {
-                    Bukkit.dispatchCommand(player, s.substring(8));
+                    String command = s.substring(8);
+                    getInstance().getLogger().info("[玩家执行][" + player.getName() + "] " + command);
+                    Bukkit.dispatchCommand(player, command);
                 }
                 if (s.startsWith("[message]")) {
                     t(player, s.substring(9));
