@@ -34,10 +34,12 @@ public class ByAPI {
     public void reload(MemoryConfiguration config) {
         stopTask();
         if (CheckerMode.POLLING_API.equals(parent.getMode()) && parent.configuredApi()) {
-            long period = config.getLong("polling_api.period_seconds", 30L) * 20L;
+            long periodSecond = config.getLong("polling_api.period_seconds", 30L);
+            long period = periodSecond * 20L;
             limitOrder = config.getInt("polling_api.limit_order", 50);
             ignoreAll = config.getBoolean("polling_api.ignore-all", true);
             task = Bukkit.getScheduler().runTaskTimerAsynchronously(parent.plugin, this::run, period, period);
+            parent.info("工作模式: 轮询API/" + periodSecond + "秒");
         }
     }
 

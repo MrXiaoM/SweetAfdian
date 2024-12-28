@@ -119,6 +119,7 @@ public class ByWebhook {
             int port = config.getInt("web_hook.port", 8087);
             String path = config.getString("web_hook.path", "/api/afdian/hook");
             setupWebHookServer(port, path);
+            parent.info("工作模式: WebHook http://<ip>:" + port + path);
         }
     }
 
