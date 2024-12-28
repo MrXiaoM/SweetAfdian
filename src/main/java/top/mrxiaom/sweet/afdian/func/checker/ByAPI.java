@@ -36,7 +36,7 @@ public class ByAPI {
         if (CheckerMode.POLLING_API.equals(parent.getMode()) && parent.configuredApi()) {
             long period = config.getLong("polling_api.period_seconds", 30L) * 20L;
             limitOrder = config.getInt("polling_api.limit_order", 50);
-            ignoreAll = config.getBoolean("polling_api.ignore_all", true);
+            ignoreAll = config.getBoolean("polling_api.ignore-all", true);
             task = Bukkit.getScheduler().runTaskTimerAsynchronously(parent.plugin, this::run, period, period);
         }
     }
