@@ -10,6 +10,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static top.mrxiaom.pluginbase.func.AbstractPluginHolder.t;
@@ -56,8 +57,12 @@ public class SweetAfdian extends BukkitPlugin {
 
     @SafeVarargs
     public final void runCommands(String playerName, @Nullable Player player, List<String> commands, Pair<String, Object>... replacements) {
+        List<String> parsed = new ArrayList<>();
+        for (String command : commands) {
+            parsed.add(Pair.replace(command, replacements));
+        }
         OfflinePlayer offline = player != null ? player : Util.getOfflinePlayer(playerName).orElse(null);
-        List<String> list = offline == null ? commands : PAPI.setPlaceholders(offline, commands);
+        List<String> list = offline == null ? parsed : PAPI.setPlaceholders(offline, parsed);
         for (String str : list) {
             String s = Pair.replace(str, replacements);
             if (s.startsWith("[console]")) {
