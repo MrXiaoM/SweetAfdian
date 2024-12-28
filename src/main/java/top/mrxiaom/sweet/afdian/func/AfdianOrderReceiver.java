@@ -3,6 +3,8 @@ package top.mrxiaom.sweet.afdian.func;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.jetbrains.annotations.NotNull;
@@ -10,6 +12,7 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.afdian.SweetAfdian;
+import top.mrxiaom.sweet.afdian.events.ReceiveOrderEvent;
 import top.mrxiaom.sweet.afdian.func.checker.ByAPI;
 import top.mrxiaom.sweet.afdian.func.checker.ByWebhook;
 import top.mrxiaom.sweet.afdian.func.checker.CheckerMode;
@@ -84,12 +87,12 @@ public class AfdianOrderReceiver extends AbstractModule {
         byWebhook.reload(config);
     }
 
-    public boolean matchPlayerName(String s) {
+    public OfflinePlayer matchPlayerName(String s) {
         int length = s.length();
-        if (length < playerNameMinLength || length > playerNameMaxLength) return false;
+        if (length < playerNameMinLength || length > playerNameMaxLength) return null;
         Matcher m = playerNamePattern.matcher(s);
         boolean match = m.matches() && m.start() == 0 && m.end() == length;
-        return match && Util.getOfflinePlayer(s).isPresent();
+        return match ? Util.getOfflinePlayer(s).orElse(null) : null;
     }
 
     public void handleReceiveOrder(@NotNull String outTradeNo, JsonObject obj) {
@@ -111,12 +114,15 @@ public class AfdianOrderReceiver extends AbstractModule {
         String addressPhone = optString(obj, "address_phone", "");
         String addressAddress = optString(obj, "address_address", "");
         String player = remark.trim();
-        if (status != 2 || !matchPlayerName(player)) return;
+        if (status != 2) return;
+        OfflinePlayer offline = matchPlayerName(player);
+        if (offline == null) return;
         Double money = Util.parseDouble(totalAmount).orElse(null);
         if (money == null) return;
         if (productType == 0) { // 普通赞助
             String point = normal.pointTransformer.apply(money);
-            normal.execute(plugin, player, money, point, 1, addressPerson, addressPhone, addressAddress);
+            ReceiveOrderEvent event = new ReceiveOrderEvent(player, offline, outTradeNo, null, obj);
+            normal.execute(plugin, event, player, money, point, 1, addressPerson, addressPhone, addressAddress);
             return;
         }
         if (productType == 1) { // 电铺
@@ -134,14 +140,18 @@ public class AfdianOrderReceiver extends AbstractModule {
                 Double priceDouble = Util.parseDouble(price).orElse(null);
                 if (skuId == null || name == null || priceDouble == null) continue;
                 String key = planTitle + ":" + name;
+                ReceiveOrderEvent event = new ReceiveOrderEvent(player, offline, outTradeNo, skuId, obj);
                 ShopItem shopItem = electricShop.get(key);
-                if (shopItem == null) continue;
+                if (shopItem == null) {
+                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
+                    continue;
+                }
                 if (shopItem.type.equals(ExecuteType.point)) {
                     String point = normal.pointTransformer.apply(priceDouble * count);
-                    shopItem.order.execute(plugin, player, priceDouble, point, 1, addressPerson, addressPhone, addressAddress);
+                    shopItem.order.execute(plugin, event, player, priceDouble, point, 1, addressPerson, addressPhone, addressAddress);
                 } else if (shopItem.type.equals(ExecuteType.command)) {
                     String point = normal.pointTransformer.apply(priceDouble);
-                    shopItem.order.execute(plugin, player, priceDouble, point, count, addressPerson, addressPhone, addressAddress);
+                    shopItem.order.execute(plugin, event, player, priceDouble, point, count, addressPerson, addressPhone, addressAddress);
                 }
             }
             return;
