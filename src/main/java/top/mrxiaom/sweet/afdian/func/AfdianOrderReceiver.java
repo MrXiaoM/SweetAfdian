@@ -93,7 +93,6 @@ public class AfdianOrderReceiver extends AbstractModule {
     }
 
     public void handleReceiveOrder(@NotNull String outTradeNo, JsonObject obj) {
-        plugin.getProceedOrder().put(outTradeNo, obj.toString());
         String userId = optString(obj, "user_id", null);
         String planId = optString(obj, "plan_id", null);
         Integer month = optInt(obj, "month", null);

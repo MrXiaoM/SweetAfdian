@@ -71,6 +71,7 @@ public class ByAPI {
             if (order == null) continue;
             parent.info("收到新的订单 " + key + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
             if (parent.plugin.debug) parent.info(order.toString());
+            parent.plugin.getProceedOrder().put(key, order.toString());
             if (!ignoreAll) {
                 parent.handleReceiveOrder(key, order);
             }

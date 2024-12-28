@@ -72,6 +72,7 @@ public class ByWebhook {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
                                 parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
+                                parent.plugin.getProceedOrder().put(outTradeNo, leakCheck.toString());
                                 parent.handleReceiveOrder(outTradeNo, leakCheck);
                             }
                         }
