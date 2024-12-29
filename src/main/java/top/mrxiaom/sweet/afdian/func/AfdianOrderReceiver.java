@@ -87,6 +87,18 @@ public class AfdianOrderReceiver extends AbstractModule {
         byWebhook.reload(config);
     }
 
+    public static String firstNotEmptyLine(String s) {
+        if (s.contains("\n")) {
+            String[] lines = s.split("\n");
+            for (String line : lines) {
+                String trim = line.trim();
+                if (!trim.isEmpty()) return trim;
+            }
+            return "";
+        }
+        return s.trim();
+    }
+
     public OfflinePlayer matchPlayerName(String s) {
         int length = s.length();
         if (length < playerNameMinLength || length > playerNameMaxLength) return null;
@@ -113,7 +125,7 @@ public class AfdianOrderReceiver extends AbstractModule {
         String addressPerson = optString(obj, "address_person", "");
         String addressPhone = optString(obj, "address_phone", "");
         String addressAddress = optString(obj, "address_address", "");
-        String player = remark.trim();
+        String player = firstNotEmptyLine(remark);
         if (status != 2) return;
         OfflinePlayer offline = matchPlayerName(player);
         if (offline == null) return;
