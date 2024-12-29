@@ -35,10 +35,10 @@ player-name:
 
 # 收到一般赞助
 product-normal:
-  # 赞助金额处理（可选，默认为 10, floor）
+  # 赞助金额处理（可选，默认为 10.0, floor）
   point:
     # 乘数
-    scale: 10
+    scale: 10.0
     # 四舍五入方式
     # floor 向下取整，ceil 向上取整，round 四舍五入，
     # 输入数字即保留N位小数，比如2保留两位小数
@@ -68,7 +68,7 @@ product-shop:
     测试型号:
       # 同 product-normal.point
       point:
-        scale: 1
+        scale: 1.0
         rounding: floor
       # 同 product-normal.require-online
       require-online: false
