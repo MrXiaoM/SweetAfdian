@@ -12,6 +12,8 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.HashSet;
+import java.util.Set;
 
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
@@ -19,6 +21,8 @@ public class ByWebhook {
     AfdianOrderReceiver parent;
     HttpServer server;
     boolean ignoreAll;
+    Set<String> whitelist = new HashSet<>();
+    Set<String> blocked = new HashSet<>();
     public ByWebhook(AfdianOrderReceiver parent) {
         this.parent = parent;
     }
@@ -31,6 +35,17 @@ public class ByWebhook {
                     exchange.sendResponseHeaders(404, 0);
                     exchange.getRequestBody().close();
                     return;
+                }
+                String hostName = exchange.getRemoteAddress().getHostName();
+                if (!whitelist.isEmpty()) {
+                    if (blocked.contains(hostName)) return;
+                    if (!whitelist.contains(hostName)) {
+                        blocked.add(hostName);
+                        parent.warn("[" + hostName + "] 不在 WebHook 白名单中，禁止访问");
+                        exchange.sendResponseHeaders(403, 0);
+                        exchange.getRequestBody().close();
+                        return;
+                    }
                 }
                 try (InputStream input = exchange.getRequestBody();
                      InputStreamReader reader = new InputStreamReader(input, StandardCharsets.UTF_8)) {
@@ -65,7 +80,6 @@ public class ByWebhook {
                                     }
                                 }
                             }
-                            String hostName = exchange.getRemoteAddress().getHostName();
                             if (isTestOrder) {
                                 parent.info("[" + hostName + "] 成功收到爱发电测试订单 " + optString(order, "plan_title", ""));
                             } else if (leakCheck == null) {
@@ -115,6 +129,9 @@ public class ByWebhook {
     public void reload(MemoryConfiguration config) {
         stopWebHook();
         if (CheckerMode.WEB_HOOK.equals(parent.getMode())) {
+            whitelist.clear();
+            blocked.clear();
+            whitelist.addAll(config.getStringList("web_hook.whitelist"));
             ignoreAll = config.getBoolean("web_hook.ignore-all", true);
             int port = config.getInt("web_hook.port", 8087);
             String path = config.getString("web_hook.path", "/api/afdian/hook");

@@ -13,6 +13,9 @@ web_hook:
   # 是否忽略执行所有提交上来的订单，用于测试 webhook 是否工作正常
   # 确认工作正常后，应该关闭此项
   ignore-all: true
+  # 允许入站的白名单IP列表，留空则允许所有IP
+  # 当首次访问 WebHook 的IP不在白名单时，在控制台输出警告
+  whitelist: []
 # 在 POLLING_API 模式（轮询API）下的配置
 polling_api:
   # 多少秒轮询一次爱发电订单列表API
