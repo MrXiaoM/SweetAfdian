@@ -32,8 +32,14 @@ public class ByWebhook {
             server = HttpServer.create(new InetSocketAddress(port), 0);
             createContext(hookPath, exchange -> {
                 if (!exchange.getRequestMethod().equals("POST")) {
-                    exchange.sendResponseHeaders(404, 0);
-                    exchange.getRequestBody().close();
+                    // 隐藏自己，我就不说 400 Bad Request，我就说 404 Not Found
+                    byte[] message = "<h1>404 Not Found</h1>No context found for request"
+                            .getBytes("ISO8859_1");
+                    exchange.getResponseHeaders().add("Content-Type", "text/html");
+                    exchange.sendResponseHeaders(404, message.length);
+                    try (OutputStream os = exchange.getResponseBody()) {
+                        os.write(message);
+                    }
                     return;
                 }
                 String hostName = exchange.getRemoteAddress().getHostName();
@@ -42,8 +48,13 @@ public class ByWebhook {
                     if (!whitelist.contains(hostName)) {
                         blocked.add(hostName);
                         parent.warn("[" + hostName + "] 不在 WebHook 白名单中，禁止访问");
-                        exchange.sendResponseHeaders(403, 0);
-                        exchange.getRequestBody().close();
+                        byte[] message = "<h1>403 Forbidden</h1>Authorize failed"
+                                .getBytes("ISO8859_1");
+                        exchange.getResponseHeaders().add("Content-Type", "text/html");
+                        exchange.sendResponseHeaders(403, message.length);
+                        try (OutputStream os = exchange.getResponseBody()) {
+                            os.write(message);
+                        }
                         return;
                     }
                 }
