@@ -22,6 +22,7 @@ import top.mrxiaom.sweet.afdian.func.entry.ShopItem;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -172,7 +173,17 @@ public class AfdianOrderReceiver extends AbstractModule {
 
     @Override
     public void onDisable() {
-        byAPI.stopTask();
-        byWebhook.stopWebHook();
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        Future<Boolean> future = executor.submit(() -> {
+            byAPI.stopTask();
+            byWebhook.stopWebHook();
+            return true;
+        });
+        try {
+            future.get(10, TimeUnit.SECONDS);
+        } catch (Throwable ignored) {
+            future.cancel(true);
+        }
+        executor.shutdown();
     }
 }
