@@ -1,9 +1,8 @@
 package top.mrxiaom.sweet.afdian.func.checker;
 
 import com.google.gson.*;
-import org.bukkit.Bukkit;
 import org.bukkit.configuration.MemoryConfiguration;
-import org.bukkit.scheduler.BukkitTask;
+import top.mrxiaom.pluginbase.api.IRunTask;
 import top.mrxiaom.sweet.afdian.func.AfdianOrderReceiver;
 
 import java.io.IOException;
@@ -24,7 +23,7 @@ import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
 public class ByAPI {
     AfdianOrderReceiver parent;
-    BukkitTask task;
+    IRunTask task;
     int limitOrder;
     boolean ignoreAll;
     public ByAPI(AfdianOrderReceiver parent) {
@@ -38,7 +37,7 @@ public class ByAPI {
             long period = periodSecond * 20L;
             limitOrder = config.getInt("polling_api.limit_order", 50);
             ignoreAll = config.getBoolean("polling_api.ignore-all", true);
-            task = Bukkit.getScheduler().runTaskTimerAsynchronously(parent.plugin, this::run, period, period);
+            task = parent.plugin.getScheduler().runTaskTimerAsynchronously(this::run, period, period);
             parent.info("工作模式: 轮询API/" + periodSecond + "秒");
         }
     }

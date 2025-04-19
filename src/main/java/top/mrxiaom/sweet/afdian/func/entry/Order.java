@@ -23,7 +23,7 @@ public class Order {
     }
 
     public void execute(SweetAfdian plugin, ReceiveOrderEvent event, String player, Double money, String point, int times, String person, String phone, String address) {
-        Bukkit.getScheduler().runTask(plugin, () -> {
+        plugin.getScheduler().runTask(() -> {
             if (event != null) {
                 Bukkit.getPluginManager().callEvent(event);
                 if (event.isCancelled()) return;

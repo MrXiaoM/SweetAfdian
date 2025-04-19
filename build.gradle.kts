@@ -29,6 +29,7 @@ dependencies {
 
     implementation("com.zaxxer:HikariCP:4.0.3") { isTransitive = false }
     implementation("org.jetbrains:annotations:24.0.0")
+    implementation("com.github.technicallycoded:FoliaLib:0.4.4")
     implementation("top.mrxiaom:PluginBase:1.3.8")
 }
 java {
@@ -43,6 +44,7 @@ tasks {
         mapOf(
             "org.intellij.lang.annotations" to "annotations.intellij",
             "org.jetbrains.annotations" to "annotations.jetbrains",
+            "com.tcoded.folialib" to "folialib",
             "top.mrxiaom.pluginbase" to "base",
             "com.zaxxer.hikari" to "hikari",
         ).forEach { (original, target) ->

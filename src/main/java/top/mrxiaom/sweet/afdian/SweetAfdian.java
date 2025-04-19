@@ -8,6 +8,7 @@ import top.mrxiaom.pluginbase.BukkitPlugin;
 import top.mrxiaom.pluginbase.utils.PAPI;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
+import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
 
 import java.util.ArrayList;
@@ -29,6 +30,7 @@ public class SweetAfdian extends BukkitPlugin {
                 .vaultEconomy(false)
                 .scanIgnore("top.mrxiaom.sweet.afdian.libs")
         );
+        scheduler = new FoliaLibScheduler(this);
     }
     ProceedOrderDatabase proceedOrder;
     public boolean debug;

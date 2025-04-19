@@ -156,7 +156,7 @@ public class AfdianOrderReceiver extends AbstractModule {
                 ReceiveOrderEvent event = new ReceiveOrderEvent(player, offline, outTradeNo, skuId, obj);
                 ShopItem shopItem = electricShop.get(key);
                 if (shopItem == null) {
-                    Bukkit.getScheduler().runTask(plugin, () -> Bukkit.getPluginManager().callEvent(event));
+                    plugin.getScheduler().runTask(() -> Bukkit.getPluginManager().callEvent(event));
                     continue;
                 }
                 if (shopItem.type.equals(ExecuteType.point)) {
