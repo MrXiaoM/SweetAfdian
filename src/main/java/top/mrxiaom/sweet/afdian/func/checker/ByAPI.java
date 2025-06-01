@@ -22,10 +22,10 @@ import java.util.Map;
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
 public class ByAPI {
-    AfdianOrderReceiver parent;
-    IRunTask task;
-    int limitOrder;
-    boolean ignoreAll;
+    private final AfdianOrderReceiver parent;
+    private IRunTask task;
+    private int limitOrder;
+    private boolean ignoreAll;
     public ByAPI(AfdianOrderReceiver parent) {
         this.parent = parent;
     }
@@ -38,7 +38,11 @@ public class ByAPI {
             limitOrder = config.getInt("polling_api.limit_order", 50);
             ignoreAll = config.getBoolean("polling_api.ignore-all", true);
             task = parent.plugin.getScheduler().runTaskTimerAsynchronously(this::run, period, period);
-            parent.info("工作模式: 轮询API/" + periodSecond + "秒");
+            if (ignoreAll) {
+                parent.info("工作模式: 轮询API/" + periodSecond + "秒 忽略全部订单");
+            } else {
+                parent.info("工作模式: 轮询API/" + periodSecond + "秒");
+            }
         }
     }
 

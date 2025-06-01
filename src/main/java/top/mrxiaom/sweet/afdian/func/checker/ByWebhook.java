@@ -18,11 +18,11 @@ import java.util.Set;
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
 public class ByWebhook {
-    AfdianOrderReceiver parent;
-    HttpServer server;
-    boolean ignoreAll;
-    Set<String> whitelist = new HashSet<>();
-    Set<String> blocked = new HashSet<>();
+    private final AfdianOrderReceiver parent;
+    private HttpServer server;
+    private boolean ignoreAll;
+    private final Set<String> whitelist = new HashSet<>();
+    private final Set<String> blocked = new HashSet<>();
     public ByWebhook(AfdianOrderReceiver parent) {
         this.parent = parent;
     }
@@ -147,7 +147,11 @@ public class ByWebhook {
             int port = config.getInt("web_hook.port", 8087);
             String path = config.getString("web_hook.path", "/api/afdian/hook");
             setupWebHookServer(port, path);
-            parent.info("工作模式: WebHook http://<ip>:" + port + path);
+            if (ignoreAll) {
+                parent.info("工作模式: WebHook http://<ip>:" + port + path + " 忽略全部订单");
+            } else {
+                parent.info("工作模式: WebHook http://<ip>:" + port + path);
+            }
         }
     }
 
