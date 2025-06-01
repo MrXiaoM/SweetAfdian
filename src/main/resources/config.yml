@@ -22,7 +22,7 @@ polling_api:
   period_seconds: 30
   # 一次拉取多少个订单，支持 1-100
   limit_count: 50
-  # 是否忽略执行所有查询到的订单，用于初次安装插件，或从 WebHook 切换到此模式时，同步爱发电数据使用
+  # 是否忽略执行所有查询到的订单，用于初次安装插件、将 limit_order 调大、或从 WebHook 切换到此模式时，同步爱发电数据使用
   # 确认工作正常后，应该关闭此项
   ignore-all: true
 

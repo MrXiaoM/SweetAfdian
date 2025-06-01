@@ -57,6 +57,7 @@ public class ByAPI {
         String path = "/api/open/query-order";
         JsonObject params = new JsonObject();
         params.addProperty("page", 1);
+        params.addProperty("per_page", limitOrder);
         JsonObject result = ByAPI.request(path, parent.getUserId(), parent.getApiToken(), params);
         Map<String, JsonObject> ordersMap = new HashMap<>();
         if (optInt(result, "ec", 0) == 200) {
