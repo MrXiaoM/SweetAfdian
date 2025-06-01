@@ -20,7 +20,9 @@ import top.mrxiaom.sweet.afdian.func.entry.ExecuteType;
 import top.mrxiaom.sweet.afdian.func.entry.Order;
 import top.mrxiaom.sweet.afdian.func.entry.ShopItem;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.regex.Matcher;
@@ -106,6 +108,31 @@ public class AfdianOrderReceiver extends AbstractModule {
         Matcher m = playerNamePattern.matcher(s);
         boolean match = m.matches() && m.start() == 0 && m.end() == length;
         return match ? Util.getOfflinePlayer(s).orElse(null) : null;
+    }
+
+    public void printOrder(String outTradeNo, JsonObject order) {
+        printOrder("", outTradeNo, order);
+    }
+
+    public void printOrder(String prefix, String outTradeNo, JsonObject order) {
+        int productType = optInt(order, "product_type", -1);
+        String remark = optString(order, "remark", "");
+        if (productType == 0) {
+            String totalAmount = optString(order, "total_amount", null);
+            info(prefix + "收到新的订单 " + outTradeNo + " ￥" + totalAmount + remark);
+        }
+        if (productType == 1) {
+            List<String> skuList = new ArrayList<>();
+            JsonArray array = optArray(order, "sku_detail");
+            for (JsonElement element : array) {
+                String skuName = optString(element.getAsJsonObject(), "name", null);
+                skuList.add(skuName);
+            }
+            String skuString = skuList.size() == 1
+                    ? skuList.get(0)
+                    : ("[" + String.join(", ", skuList) + "]");
+            info(prefix + "收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + skuString + " " + remark);
+        }
     }
 
     public void handleReceiveOrder(@NotNull String outTradeNo, JsonObject obj) {

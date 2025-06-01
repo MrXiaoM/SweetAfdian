@@ -72,7 +72,7 @@ public class ByWebhook {
                         JsonObject data = optObject(json, "data");
                         JsonObject order = optObject(data, "order");
                         String outTradeNo = optString(order, "out_trade_no", null);
-                        if (parent.plugin.debug) parent.info(json.toString());
+                        if (parent.plugin.debug) parent.info(order.toString());
                         if (outTradeNo != null) {
                             boolean isTestOrder = outTradeNo.equals("202106232138371083454010626");
                             JsonObject leakCheck = null;
@@ -96,9 +96,11 @@ public class ByWebhook {
                             } else if (leakCheck == null) {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
-                                parent.info("[" + hostName + "] 收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + optString(order, "remark", ""));
+                                parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck);
                                 parent.plugin.getProceedOrder().put(outTradeNo, leakCheck.toString());
-                                parent.handleReceiveOrder(outTradeNo, leakCheck);
+                                if (!ignoreAll) {
+                                    parent.handleReceiveOrder(outTradeNo, leakCheck);
+                                }
                             }
                         }
                     } catch (JsonSyntaxException | IllegalStateException ignored) {
