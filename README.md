@@ -28,3 +28,19 @@
 简单来说，你只要在爱发电上面配置好商品，在插件配置文件配置好执行的操作就可以了。玩家需要做的，只有下单时在“留言”那一栏填写自己的玩家名。
 
 至于配置的方法以及注意事项，已经全部写到配置文件注释了，尽情享用吧！
+
+## 开发者
+
+[![jitpack](https://jitpack.io/v/MrXiaoM/SweetAfdian.svg)](https://jitpack.io/#MrXiaoM/SweetAfdian)
+
+```kotlin
+repositories {
+    maven("https://jitpack.io/")
+}
+dependencies {
+    compileOnly("com.github.MrXiaoM:SweetAfdian:$VERSION")
+}
+```
+
+在收到订单时，插件会广播事件 `top.mrxiaom.sweet.afdian.events.ReceiveOrderEvent`。  
+你可以通过这个事件获取订单信息，也可以取消这个事件避免执行 `config.yml` 中设定的命令。

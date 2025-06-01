@@ -64,6 +64,7 @@ product-normal:
   commands:
     - '[console]points give %player% %point%'
 # 收到电铺订单
+# 商品名称和型号名称均区分大小写
 product-shop:
   # 商品名称，在爱发电创建的时候不要重名
   测试商品:
