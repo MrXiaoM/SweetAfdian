@@ -23,6 +23,7 @@ public class ByWebhook {
     private boolean ignoreAll;
     private final Set<String> whitelist = new HashSet<>();
     private final Set<String> blocked = new HashSet<>();
+    private final Set<String> handledOrders = new HashSet<>();
     public ByWebhook(AfdianOrderReceiver parent) {
         this.parent = parent;
     }
@@ -96,10 +97,14 @@ public class ByWebhook {
                             } else if (leakCheck == null) {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
-                                parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck);
-                                parent.plugin.getProceedOrder().put(outTradeNo, leakCheck.toString());
-                                if (!ignoreAll) {
-                                    parent.handleReceiveOrder(outTradeNo, leakCheck);
+                                if (handledOrders.add(outTradeNo)) {
+                                    parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck);
+                                    parent.plugin.getProceedOrder().put(outTradeNo, leakCheck.toString());
+                                    if (!ignoreAll) {
+                                        parent.handleReceiveOrder(outTradeNo, leakCheck);
+                                    }
+                                } else {
+                                    parent.printOrder("[" + hostName + "][已处理订单] ", outTradeNo, leakCheck);
                                 }
                             }
                         }
