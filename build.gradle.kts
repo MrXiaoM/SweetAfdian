@@ -5,7 +5,7 @@ plugins {
 }
 
 group = "top.mrxiaom.sweet.afdian"
-version = "1.0.4"
+version = "1.0.5"
 val targetJavaVersion = 8
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
 
