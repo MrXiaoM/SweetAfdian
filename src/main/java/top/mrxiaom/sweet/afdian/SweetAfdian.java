@@ -23,11 +23,7 @@ public class SweetAfdian extends BukkitPlugin {
 
     public SweetAfdian() {
         super(options()
-                .bungee(false)
-                .adventure(false)
                 .database(true)
-                .reconnectDatabaseWhenReloadConfig(false)
-                .vaultEconomy(false)
                 .scanIgnore("top.mrxiaom.sweet.afdian.libs")
         );
         scheduler = new FoliaLibScheduler(this);
@@ -53,8 +49,8 @@ public class SweetAfdian extends BukkitPlugin {
 
     @Override
     public void reloadConfig() {
-        super.reloadConfig();
         debug = getConfig().getBoolean("debug", false);
+        super.reloadConfig();
     }
 
     @SafeVarargs
