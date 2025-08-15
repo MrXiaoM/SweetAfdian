@@ -29,5 +29,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: SweetAfdian
-          path: build/libs/*.jar
+          path: out/*.jar
           if-no-files-found: error
