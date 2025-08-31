@@ -2,6 +2,7 @@ package top.mrxiaom.sweet.afdian;
         
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
+import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
@@ -48,9 +49,8 @@ public class SweetAfdian extends BukkitPlugin {
     }
 
     @Override
-    public void reloadConfig() {
+    protected void beforeReloadConfig(FileConfiguration config) {
         debug = getConfig().getBoolean("debug", false);
-        super.reloadConfig();
     }
 
     @SafeVarargs
