@@ -11,6 +11,7 @@ import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
+import top.mrxiaom.sweet.afdian.database.ScheduleOrderDatabase;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,16 +31,22 @@ public class SweetAfdian extends BukkitPlugin {
         scheduler = new FoliaLibScheduler(this);
     }
     ProceedOrderDatabase proceedOrder;
+    ScheduleOrderDatabase scheduleOrder;
     public boolean debug;
 
     public ProceedOrderDatabase getProceedOrder() {
         return proceedOrder;
     }
 
+    public ScheduleOrderDatabase getScheduleOrder() {
+        return scheduleOrder;
+    }
+
     @Override
     protected void beforeEnable() {
         options.registerDatabase(
-                proceedOrder = new ProceedOrderDatabase(this)
+                proceedOrder = new ProceedOrderDatabase(this),
+                scheduleOrder = new ScheduleOrderDatabase(this)
         );
     }
 

@@ -17,7 +17,7 @@ public class ShopItem {
     }
 
     public static ShopItem load(ConfigurationSection itemSection, String itemName, String skuName) {
-        Order order = Order.load(itemSection, skuName);
+        Order order = Order.load(itemSection, skuName, itemName + ":" + skuName);
         ExecuteType type = Util.valueOr(ExecuteType.class, itemSection.getString(skuName + ".type"), ExecuteType.command);
         return new ShopItem(itemName, skuName, type, order);
     }

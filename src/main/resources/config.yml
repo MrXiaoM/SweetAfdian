@@ -48,6 +48,8 @@ product-normal:
     rounding: floor
   # 是否要求玩家在线（可选，默认为 false）
   require-online: false
+  # 是否等到玩家上线后再给予奖励（可选，默认为 false，开启此项后将忽略 require-online 选项）
+  schedule-join: false
   # 收到一般赞助执行的命令
   # [console]控制台命令
   # [player]玩家命令（如果玩家在线的话）
@@ -76,6 +78,8 @@ product-shop:
         rounding: floor
       # 同 product-normal.require-online
       require-online: false
+      # 同 product-normal.schedule-join
+      schedule-join: false
       # 执行类型（可选，默认为 command）
       # point：point的值乘以购买数量，只执行一次 commands 列表
       # command：执行 购买数量 次数的 commands 列表

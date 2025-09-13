@@ -7,6 +7,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
+import org.bukkit.entity.Player;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
@@ -31,7 +35,7 @@ import java.util.regex.Pattern;
 import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 
 @AutoRegister
-public class AfdianOrderReceiver extends AbstractModule {
+public class AfdianOrderReceiver extends AbstractModule implements Listener {
     private CheckerMode mode;
     ByAPI byAPI = new ByAPI(this);
     ByWebhook byWebhook = new ByWebhook(this);
@@ -42,6 +46,7 @@ public class AfdianOrderReceiver extends AbstractModule {
     private final Map<String, ShopItem> electricShop = new HashMap<>();
     public AfdianOrderReceiver(SweetAfdian plugin) {
         super(plugin);
+        registerEvents();
     }
 
     @Nullable
@@ -88,6 +93,51 @@ public class AfdianOrderReceiver extends AbstractModule {
         }
         byAPI.reload(config);
         byWebhook.reload(config);
+    }
+
+    @EventHandler
+    public void onJoin(PlayerJoinEvent e) {
+        Player player = e.getPlayer();
+        plugin.getScheduler().runTaskAsync(() -> {
+            String playerName = player.getName();
+            List<JsonObject> list = plugin.getScheduleOrder().fetch(playerName);
+            if (!list.isEmpty()) {
+                plugin.getScheduler().runTask(() -> {
+                    for (JsonObject data : list) {
+                        try {
+                            String name = data.get("name").getAsString();
+                            Order order = getOrderByName(name);
+                            if (order == null) {
+                                warn("玩家 " + playerName + " 下单的 " + name + " 类型商品不存在");
+                                continue;
+                            }
+                            double money = data.get("money").getAsDouble();
+                            String point = data.get("point").getAsString();
+                            int times = data.get("times").getAsInt();
+                            String person = data.get("person").getAsString();
+                            String phone = data.get("phone").getAsString();
+                            String address = data.get("address").getAsString();
+                            order.execute(plugin, player, money, point, times, person, phone, address);
+                        } catch (Throwable t) {
+                            warn("在处理玩家 " + playerName + " 的延时订单时出现异常", t);
+                        }
+                    }
+                });
+            }
+        });
+    }
+
+    private Order getOrderByName(String name) {
+        if (name.equals("product-normal")) {
+            return normal;
+        }
+        if (name.contains(":")) {
+            ShopItem shopItem = electricShop.get(name);
+            if (shopItem != null) {
+                return shopItem.order;
+            }
+        }
+        return null;
     }
 
     public static String firstNotEmptyLine(String s) {
