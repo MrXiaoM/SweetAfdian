@@ -2,11 +2,19 @@ plugins {
     java
     `maven-publish`
     id ("com.github.johnrengelman.shadow") version "7.0.0"
+    id ("com.github.gmazzo.buildconfig") version "5.6.7"
 }
+
+buildscript {
+    repositories.mavenCentral()
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.2")
+}
+val base = top.mrxiaom.gradle.LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
 version = "1.0.6"
 val targetJavaVersion = 8
+val pluginBaseModules = base.modules.run { listOf(library, actions) }
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
 
 repositories {
@@ -25,10 +33,25 @@ dependencies {
     compileOnly("me.clip:placeholderapi:2.11.6")
     compileOnly("org.jetbrains:annotations:24.0.0")
 
-    implementation("com.zaxxer:HikariCP:4.0.3") { isTransitive = false }
+    base.library("com.zaxxer:HikariCP:4.0.3")
+
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
-    implementation("top.mrxiaom.pluginbase:library:1.6.3")
+    for (artifact in pluginBaseModules) {
+        implementation(artifact)
+    }
+    implementation(base.resolver.lite)
 }
+
+buildConfig {
+    className("BuildConstants")
+    packageName("top.mrxiaom.sweet.afdian")
+
+    base.doResolveLibraries()
+    buildConfigField("String", "VERSION", "\"${project.version}\"")
+    buildConfigField("java.time.Instant", "BUILD_TIME", "java.time.Instant.ofEpochSecond(${System.currentTimeMillis() / 1000L}L)")
+    buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
+}
+
 java {
     val javaVersion = JavaVersion.toVersion(targetJavaVersion)
     if (JavaVersion.current() < javaVersion) {
@@ -40,22 +63,9 @@ tasks {
         mapOf(
             "com.tcoded.folialib" to "folialib",
             "top.mrxiaom.pluginbase" to "base",
-            "com.zaxxer.hikari" to "hikari",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")
         }
-        listOf(
-            "top/mrxiaom/pluginbase/func/AbstractGui*",
-            "top/mrxiaom/pluginbase/func/gui/*",
-            "top/mrxiaom/pluginbase/utils/IA*",
-            "top/mrxiaom/pluginbase/utils/ItemStackUtil*",
-            "top/mrxiaom/pluginbase/func/GuiManager*",
-            "top/mrxiaom/pluginbase/gui/*",
-            "top/mrxiaom/pluginbase/func/LanguageManager*",
-            "top/mrxiaom/pluginbase/func/language/*",
-            "top/mrxiaom/pluginbase/utils/Adventure*",
-            "top/mrxiaom/pluginbase/utils/Bytes*",
-        ).forEach(this::exclude)
     }
     val copyTask = create<Copy>("copyBuildArtifact") {
         dependsOn(shadowJar)

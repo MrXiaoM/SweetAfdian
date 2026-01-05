@@ -6,6 +6,9 @@ import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.utils.ListPair;
 import top.mrxiaom.pluginbase.utils.Pair;
 import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.sweet.afdian.SweetAfdian;
@@ -19,9 +22,9 @@ public class Order {
     public final Function<Double, String> pointTransformer;
     public final boolean requireOnline;
     public final boolean scheduleJoin;
-    public final List<String> commands;
+    public final List<IAction> commands;
 
-    private Order(String name, Function<Double, String> pointTransformer, boolean requireOnline, boolean scheduleJoin, List<String> commands) {
+    private Order(String name, Function<Double, String> pointTransformer, boolean requireOnline, boolean scheduleJoin, List<IAction> commands) {
         this.name = name;
         this.pointTransformer = pointTransformer;
         this.requireOnline = requireOnline;
@@ -95,15 +98,15 @@ public class Order {
             @NotNull String phone,
             @NotNull String address
     ) {
-        Pair<String, Object>[] array = Pair.array(6);
-        array[0] = Pair.of("%player%", player);
-        array[1] = Pair.of("%money%", money);
-        array[2] = Pair.of("%point%", point);
-        array[3] = Pair.of("%person%", person);
-        array[4] = Pair.of("%phone%", phone);
-        array[5] = Pair.of("%address%", address);
+        ListPair<String, Object> r = new ListPair<>();
+        r.add("%player%", player);
+        r.add("%money%", money);
+        r.add("%point%", point);
+        r.add("%person%", person);
+        r.add("%phone%", phone);
+        r.add("%address%", address);
         for (int i = 0; i < times; i++) {
-            plugin.runCommands(player, realPlayer, commands, array);
+            ActionProviders.run(plugin, realPlayer, commands, r);
         }
     }
 
@@ -129,7 +132,7 @@ public class Order {
         }
         boolean requireOnline = section.getBoolean(key + ".require-online", false);
         boolean scheduleJoin = section.getBoolean(key + ".schedule-join", false);
-        List<String> commands = section.getStringList(key + ".commands");
+        List<IAction> commands = ActionProviders.loadActions(section, key + ".commands");
         return new Order(name, transformer, requireOnline, scheduleJoin, commands);
     }
 }

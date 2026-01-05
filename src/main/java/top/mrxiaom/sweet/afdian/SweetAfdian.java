@@ -1,34 +1,50 @@
 package top.mrxiaom.sweet.afdian;
         
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import com.google.common.collect.Lists;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.BukkitPlugin;
-import top.mrxiaom.pluginbase.utils.PAPI;
+import top.mrxiaom.pluginbase.actions.ActionProviders;
+import top.mrxiaom.pluginbase.api.IAction;
+import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
+import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.Util;
 import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
+import top.mrxiaom.sweet.afdian.actions.ActionConsole;
+import top.mrxiaom.sweet.afdian.actions.ActionPlayer;
 import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
 import top.mrxiaom.sweet.afdian.database.ScheduleOrderDatabase;
 
-import java.util.ArrayList;
+import java.io.File;
+import java.net.URL;
 import java.util.List;
-
-import static top.mrxiaom.pluginbase.func.AbstractPluginHolder.t;
 
 public class SweetAfdian extends BukkitPlugin {
     public static SweetAfdian getInstance() {
         return (SweetAfdian) BukkitPlugin.getInstance();
     }
 
-    public SweetAfdian() {
+    public SweetAfdian() throws Exception {
         super(options()
                 .database(true)
                 .scanIgnore("top.mrxiaom.sweet.afdian.libs")
         );
         scheduler = new FoliaLibScheduler(this);
+
+        getLogger().info("正在检查依赖库状态");
+        File librariesDir = ClassLoaderWrapper.isSupportLibraryLoader
+                ? new File("libraries")
+                : new File(this.getDataFolder(), "libraries");
+        DefaultLibraryResolver resolver = new DefaultLibraryResolver(getLogger(), librariesDir);
+
+        resolver.addResolvedLibrary(BuildConstants.RESOLVED_LIBRARIES);
+
+        List<URL> libraries = resolver.doResolve();
+        getLogger().info("正在添加 " + libraries.size() + " 个依赖库到类加载器");
+        for (URL library : libraries) {
+            this.classLoader.addURL(library);
+        }
     }
     ProceedOrderDatabase proceedOrder;
     ScheduleOrderDatabase scheduleOrder;
@@ -44,6 +60,7 @@ public class SweetAfdian extends BukkitPlugin {
 
     @Override
     protected void beforeEnable() {
+        ActionProviders.registerActionProviders(ActionConsole.PROVIDER, ActionPlayer.PROVIDER);
         options.registerDatabase(
                 proceedOrder = new ProceedOrderDatabase(this),
                 scheduleOrder = new ScheduleOrderDatabase(this)
@@ -61,30 +78,9 @@ public class SweetAfdian extends BukkitPlugin {
     }
 
     @SafeVarargs
+    @Deprecated
     public final void runCommands(String playerName, @Nullable Player player, List<String> commands, Pair<String, Object>... replacements) {
-        List<String> parsed = new ArrayList<>();
-        for (String command : commands) {
-            parsed.add(Pair.replace(command, replacements));
-        }
-        OfflinePlayer offline = player != null ? player : Util.getOfflinePlayer(playerName).orElse(null);
-        List<String> list = offline == null ? parsed : PAPI.setPlaceholders(offline, parsed);
-        for (String str : list) {
-            String s = Pair.replace(str, replacements);
-            if (s.startsWith("[console]")) {
-                String command = s.substring(9);
-                getInstance().getLogger().info("[执行命令] " + command);
-                Bukkit.dispatchCommand(Bukkit.getConsoleSender(), command);
-            }
-            if (player != null) {
-                if (s.startsWith("[player]")) {
-                    String command = s.substring(8);
-                    getInstance().getLogger().info("[玩家执行][" + player.getName() + "] " + command);
-                    Bukkit.dispatchCommand(player, command);
-                }
-                if (s.startsWith("[message]")) {
-                    t(player, s.substring(9));
-                }
-            }
-        }
+        List<IAction> actions = ActionProviders.loadActions(commands);
+        ActionProviders.run(getInstance(), player, actions, Lists.newArrayList(replacements));
     }
 }
