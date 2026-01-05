@@ -98,13 +98,13 @@ public class ByWebhook {
                                 parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
                             } else {
                                 if (handledOrders.add(outTradeNo)) {
-                                    parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck);
+                                    parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck, ignoreAll);
                                     parent.plugin.getProceedOrder().put(outTradeNo, leakCheck.toString());
                                     if (!ignoreAll) {
                                         parent.handleReceiveOrder(outTradeNo, leakCheck);
                                     }
                                 } else {
-                                    parent.printOrder("[" + hostName + "][已处理订单] ", outTradeNo, leakCheck);
+                                    parent.printOrder("[" + hostName + "][已处理订单] ", outTradeNo, leakCheck, ignoreAll);
                                 }
                             }
                         }

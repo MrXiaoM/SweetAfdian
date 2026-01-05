@@ -76,7 +76,7 @@ public class ByAPI {
             JsonObject order = ordersMap.get(key);
             if (order == null) continue;
             if (optInt(order, "status", -1) != 2) continue;
-            parent.printOrder(key, order);
+            parent.printOrder(key, "", order, ignoreAll);
             if (parent.plugin.debug) parent.info(order.toString());
             parent.plugin.getProceedOrder().put(key, order.toString());
             if (!ignoreAll) {

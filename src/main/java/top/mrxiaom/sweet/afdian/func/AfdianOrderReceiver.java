@@ -161,15 +161,23 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
     }
 
     public void printOrder(String outTradeNo, JsonObject order) {
-        printOrder("", outTradeNo, order);
+        printOrder("", outTradeNo, order, false);
     }
 
     public void printOrder(String prefix, String outTradeNo, JsonObject order) {
+        printOrder(prefix, outTradeNo, order, false);
+    }
+
+    public void printOrder(String prefix, String outTradeNo, JsonObject order, boolean ignoreAll) {
         int productType = optInt(order, "product_type", -1);
         String remark = optString(order, "remark", "");
         if (productType == 0) {
             String totalAmount = optString(order, "total_amount", null);
-            info(prefix + "收到新的订单 " + outTradeNo + " ￥" + totalAmount + remark);
+            if (ignoreAll) {
+                info(prefix + "(已忽略) 收到新的订单 " + outTradeNo + " ￥" + totalAmount + remark);
+            } else {
+                info(prefix + "收到新的订单 " + outTradeNo + " ￥" + totalAmount + remark);
+            }
         }
         if (productType == 1) {
             List<String> skuList = new ArrayList<>();
@@ -178,10 +186,15 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
                 String skuName = optString(element.getAsJsonObject(), "name", null);
                 skuList.add(skuName);
             }
+            String planTitle = optString(order, "plan_title", "");
             String skuString = skuList.size() == 1
                     ? skuList.get(0)
                     : ("[" + String.join(", ", skuList) + "]");
-            info(prefix + "收到新的订单 " + outTradeNo + " " + optString(order, "plan_title", "") + " " + skuString + " " + remark);
+            if (ignoreAll) {
+                info(prefix + "(已忽略) 收到新的订单 " + outTradeNo + " " + planTitle + " " + skuString + " " + remark);
+            } else {
+                info(prefix + "收到新的订单 " + outTradeNo + " " + planTitle + " " + skuString + " " + remark);
+            }
         }
     }
 
@@ -206,10 +219,17 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
         String player = firstNotEmptyLine(remark);
         if (status != 2) return;
         OfflinePlayer offline = matchPlayerName(player);
-        if (offline == null) return;
-        Double money = Util.parseDouble(totalAmount).orElse(null);
-        if (money == null) return;
+        if (offline == null) {
+            warn("尝试执行订单 " + outTradeNo + " 的操作时，指定的离线玩家 " + player + " 不存在");
+            return;
+        }
         if (productType == 0) { // 普通赞助
+            Double money = Util.parseDouble(totalAmount).orElse(null);
+            if (money == null) {
+                warn("尝试执行订单 " + outTradeNo + " 的普通赞助命令时，参数 total_amount 的值无效");
+                return;
+            }
+            info("对订单 " + outTradeNo + " 执行普通赞助命令");
             String point = normal.pointTransformer.apply(money);
             ReceiveOrderEvent event = new ReceiveOrderEvent(player, offline, outTradeNo, null, obj);
             normal.execute(plugin, event, player, money, point, 1, addressPerson, addressPhone, addressAddress);
@@ -217,6 +237,7 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
         }
         if (productType == 1) { // 电铺
             JsonArray array = optArray(obj, "sku_detail");
+            boolean success = false;
             for (JsonElement jsonElement : array) {
                 JsonObject object = jsonElement.getAsJsonObject();
                 String skuId = optString(object, "sku_id", null);
@@ -228,7 +249,10 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
                 String stock = optString(object, "stock", null);
                 String postId = optString(object, "post_id", null);
                 Double priceDouble = Util.parseDouble(price).orElse(null);
-                if (skuId == null || name == null || priceDouble == null) continue;
+                if (skuId == null || name == null || priceDouble == null) {
+                    warn("订单 " + outTradeNo + " 的商品参数不全 (至少需要 sku_id, name, price)");
+                    continue;
+                }
                 String key = planTitle + ":" + name;
                 ReceiveOrderEvent event = new ReceiveOrderEvent(player, offline, outTradeNo, skuId, obj);
                 ShopItem shopItem = electricShop.get(key);
@@ -236,6 +260,8 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
                     plugin.getScheduler().runTask(() -> Bukkit.getPluginManager().callEvent(event));
                     continue;
                 }
+                success = true;
+                info("对订单 " + outTradeNo + " 执行电铺商品命令 " + shopItem.itemName + ":" + shopItem.skuName);
                 if (shopItem.type.equals(ExecuteType.point)) {
                     String point = normal.pointTransformer.apply(priceDouble * count);
                     shopItem.order.execute(plugin, event, player, priceDouble, point, 1, addressPerson, addressPhone, addressAddress);
@@ -244,8 +270,12 @@ public class AfdianOrderReceiver extends AbstractModule implements Listener {
                     shopItem.order.execute(plugin, event, player, priceDouble, point, count, addressPerson, addressPhone, addressAddress);
                 }
             }
+            if (!success) {
+                info("对店铺订单 " + outTradeNo + " 不进行任何操作");
+            }
             return;
         }
+        info("订单 " + outTradeNo + " 的类型 (" + productType + ") 不受支持");
     }
 
     @Override
