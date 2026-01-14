@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.afdian.commands;
 
 import com.google.common.collect.Lists;
+import com.google.gson.JsonObject;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,6 +12,8 @@ import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.func.AutoRegister;
 import top.mrxiaom.sweet.afdian.SweetAfdian;
 import top.mrxiaom.sweet.afdian.func.AbstractModule;
+import top.mrxiaom.sweet.afdian.func.AfdianOrderReceiver;
+import top.mrxiaom.sweet.afdian.func.checker.ByAPI;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -25,6 +28,17 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length >= 1 && "query".equalsIgnoreCase(args[0]) && sender.isOp()) {
+            String path = "/api/open/query-order";
+            JsonObject params = new JsonObject();
+            if (args.length > 1) {
+                params.addProperty("per_page", 1);
+                params.addProperty("out_trade_no", args[1]);
+            }
+            AfdianOrderReceiver parent = instanceOf(AfdianOrderReceiver.class);
+            JsonObject result = ByAPI.request(path, parent.getUserId(), parent.getApiToken(), params);
+            return t(sender, "/api/open/query-order: " + result);
+        }
         if (args.length >= 1 && "reload".equalsIgnoreCase(args[0]) && sender.isOp()) {
             if (args.length == 2 && "database".equalsIgnoreCase(args[1])) {
                 plugin.options.database().reloadConfig();
@@ -40,7 +54,7 @@ public class CommandMain extends AbstractModule implements CommandExecutor, TabC
     private static final List<String> emptyList = Lists.newArrayList();
     private static final List<String> listArg0 = Lists.newArrayList();
     private static final List<String> listArgReload = Lists.newArrayList("database");
-    private static final List<String> listOpArg0 = Lists.newArrayList("reload");
+    private static final List<String> listOpArg0 = Lists.newArrayList("query", "reload");
     @Nullable
     @Override
     public List<String> onTabComplete(@NotNull CommandSender sender, @NotNull Command command, @NotNull String alias, @NotNull String[] args) {
