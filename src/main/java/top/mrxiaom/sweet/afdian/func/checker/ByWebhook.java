@@ -90,6 +90,11 @@ public class ByWebhook {
                                         leakCheck = element1.getAsJsonObject();
                                         break;
                                     }
+                                    if (parent.plugin.debug && leakCheck == null) {
+                                        parent.info("leak check failed: " + result);
+                                    }
+                                } else {
+                                    parent.warn("[" + hostName + "] 爱发电接口 /api/open/query-order 请求失败: " + result);
                                 }
                             }
                             if (isTestOrder) {

@@ -69,6 +69,9 @@ public class ByAPI {
                 if (outTradeNo == null) continue;
                 ordersMap.put(outTradeNo, order);
             }
+        } else {
+            parent.warn("爱发电接口 /api/open/query-order 请求失败: " + result);
+            return;
         }
         List<String> outTradeNos = new ArrayList<>(ordersMap.keySet());
         List<String> keys = parent.plugin.getProceedOrder().filterOrders(outTradeNos);
