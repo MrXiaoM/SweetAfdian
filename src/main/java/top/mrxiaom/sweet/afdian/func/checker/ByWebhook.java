@@ -100,7 +100,11 @@ public class ByWebhook {
                             if (isTestOrder) {
                                 parent.info("[" + hostName + "] 成功收到爱发电测试订单 " + optString(order, "plan_title", ""));
                             } else if (leakCheck == null) {
-                                parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
+                                if (ignoreAll) {
+                                    parent.warn("[" + hostName + "] WebHook 收到订单 " + outTradeNo + "，但你未关闭 ignore-all 选项，订单不会被处理");
+                                } else {
+                                    parent.warn("[" + hostName + "] WebHook 收到了异常的订单号 " + outTradeNo + "，无法通过爱发电接口查询到其信息");
+                                }
                             } else {
                                 if (handledOrders.add(outTradeNo)) {
                                     parent.printOrder("[" + hostName + "] ", outTradeNo, leakCheck, ignoreAll);
