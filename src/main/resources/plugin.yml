@@ -5,6 +5,7 @@ api-version: 1.13
 softdepend: [ PlaceholderAPI ]
 authors: [ MrXiaoM ]
 folia-supported: true
+# PluginBase Libraries ${libraries_config}
 commands:
   sweetafdian:
     description: 'The main command of SweetAfdian'

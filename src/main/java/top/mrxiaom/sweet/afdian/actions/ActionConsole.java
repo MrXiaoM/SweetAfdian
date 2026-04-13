@@ -1,6 +1,7 @@
 package top.mrxiaom.sweet.afdian.actions;
 
 import org.bukkit.Bukkit;
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.Nullable;
 import top.mrxiaom.pluginbase.api.IAction;
@@ -12,12 +13,28 @@ import top.mrxiaom.sweet.afdian.SweetAfdian;
 import java.util.List;
 
 public class ActionConsole implements IAction {
-    public static final IActionProvider PROVIDER = IActionProvider.newProvider(999, s -> {
-        if (s.startsWith("[console]")) {
-            return new ActionConsole(s.substring(9));
-        }
-        if (s.startsWith("console:")) {
-            return new ActionConsole(s.substring(8));
+    public static final IActionProvider PROVIDER = IActionProvider.newProvider(999, input -> {
+        if (input instanceof ConfigurationSection) {
+            ConfigurationSection section = (ConfigurationSection) input;
+            if (!section.contains("type") && section.contains("console")) {
+                String command = section.getString("console");
+                if (command != null) {
+                    return new ActionConsole(command);
+                }
+            } else if ("console".equals(section.getString("type"))) {
+                String command = section.getString("command");
+                if (command != null) {
+                    return new ActionConsole(command);
+                }
+            }
+        } else {
+            String s = String.valueOf(input);
+            if (s.startsWith("[console]")) {
+                return new ActionConsole(s.substring(9));
+            }
+            if (s.startsWith("console:")) {
+                return new ActionConsole(s.substring(8));
+            }
         }
         return null;
     });
