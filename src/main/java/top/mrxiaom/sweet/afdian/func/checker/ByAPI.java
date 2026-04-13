@@ -24,6 +24,8 @@ import static top.mrxiaom.sweet.afdian.utils.JsonUtils.*;
 public class ByAPI {
     private final AfdianOrderReceiver parent;
     private IRunTask task;
+    private static final String DEFAULT_BASE_URL = "https://afdian.com";
+    private static String baseURL = DEFAULT_BASE_URL;
     private int limitOrder;
     private boolean ignoreAll;
     public ByAPI(AfdianOrderReceiver parent) {
@@ -32,6 +34,8 @@ public class ByAPI {
 
     public void reload(MemoryConfiguration config) {
         stopTask();
+        String baseURL = config.getString("api.base-url", DEFAULT_BASE_URL);
+        ByAPI.baseURL = baseURL.endsWith("/") ? baseURL.substring(0, baseURL.length() - 1) : baseURL;
         if (CheckerMode.POLLING_API.equals(parent.getMode()) && parent.configuredApi()) {
             long periodSecond = config.getLong("polling_api.period_seconds", 30L);
             long period = periodSecond * 20L;
@@ -90,7 +94,7 @@ public class ByAPI {
 
     public static JsonObject request(String path, String userId, String token, JsonObject params) {
         try {
-            String url = "https://afdian.com" + path;
+            String url = baseURL + path;
             HttpURLConnection conn = (HttpURLConnection) new URL(url).openConnection();
             conn.setRequestMethod("POST");
             conn.setRequestProperty("Accept", "*/*");

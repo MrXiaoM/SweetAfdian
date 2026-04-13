@@ -91,5 +91,6 @@ product-shop:
 # 爱发电API设置，用户ID 和 API Token 到开发者中心获取
 # https://afdian.com/dashboard/dev
 api:
+  base-url: 'https://afdian.com/'
   user_id: ''
   token: ''
