@@ -115,7 +115,10 @@ public class ByAPI {
                 return element.getAsJsonObject();
             }
         } catch (IOException | JsonSyntaxException e) {
-            return null;
+            JsonObject result = new JsonObject();
+            result.addProperty("error", e.getClass().getName());
+            result.addProperty("message", e.getMessage());
+            return result;
         }
     }
 
