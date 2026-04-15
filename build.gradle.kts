@@ -12,7 +12,7 @@ buildscript {
 val base = top.mrxiaom.gradle.LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
-version = "1.0.8"
+version = "1.0.9"
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, actions) }
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
