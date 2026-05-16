@@ -1,3 +1,5 @@
+import top.mrxiaom.gradle.LibraryHelper
+
 plugins {
     java
     `maven-publish`
@@ -7,9 +9,9 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.17")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.21")
 }
-val base = top.mrxiaom.gradle.LibraryHelper(project)
+val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
 version = "1.0.9"
@@ -30,13 +32,11 @@ dependencies {
     compileOnly("org.spigotmc:spigot-api:1.20-R0.1-SNAPSHOT")
     compileOnly(base.depend.annotations)
 
-    compileOnly("me.clip:placeholderapi:2.11.6")
+    compileOnly("me.clip:placeholderapi:2.12.2")
 
-    base.library("net.kyori:adventure-api:4.22.0")
-    base.library("net.kyori:adventure-text-minimessage:4.22.0")
-    base.library("net.kyori:adventure-text-serializer-gson:4.22.0")
-    base.library("net.kyori:adventure-text-serializer-plain:4.22.0")
+    base.library(LibraryHelper.adventure("4.22.0"))
     base.library(base.depend.HikariCP)
+    base.collectPluginHolders()
 
     implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
@@ -55,8 +55,8 @@ buildConfig {
     buildConfigField("String[]", "RESOLVED_LIBRARIES", base.join())
 }
 
-top.mrxiaom.gradle.LibraryHelper.initJava(project, base, targetJavaVersion, true)
-top.mrxiaom.gradle.LibraryHelper.initPublishing(project)
+LibraryHelper.initJava(project, base, targetJavaVersion, true)
+LibraryHelper.initPublishing(project)
 
 tasks {
     shadowJar {
