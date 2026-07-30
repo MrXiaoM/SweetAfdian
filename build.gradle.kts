@@ -14,7 +14,7 @@ buildscript {
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
-version = "1.0.10"
+version = "1.0.11"
 val targetJavaVersion = 8
 val pluginBaseModules = base.modules.run { listOf(library, actions) }
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
