@@ -9,14 +9,14 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.32")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.33")
 }
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
 version = "1.0.11"
 val targetJavaVersion = 8
-val pluginBaseModules = base.modules.run { listOf(library, actions) }
+val pluginBaseModules = base.modules.run { listOf(library, actions, misc) }
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
 
 repositories {
@@ -38,7 +38,6 @@ dependencies {
     base.library(base.depend.HikariCP)
     base.collectPluginHolders()
 
-    implementation("com.github.technicallycoded:FoliaLib:0.4.4") { isTransitive = false }
     for (artifact in pluginBaseModules) {
         implementation(artifact)
     }
@@ -62,7 +61,6 @@ tasks {
     shadowJar {
         configurations.add(project.configurations.runtimeClasspath.get())
         mapOf(
-            "com.tcoded.folialib" to "folialib",
             "top.mrxiaom.pluginbase" to "base",
         ).forEach { (original, target) ->
             relocate(original, "$shadowGroup.$target")

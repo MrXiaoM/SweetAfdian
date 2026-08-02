@@ -12,7 +12,6 @@ import top.mrxiaom.pluginbase.resolver.DefaultLibraryResolver;
 import top.mrxiaom.pluginbase.utils.ClassLoaderWrapper;
 import top.mrxiaom.pluginbase.utils.ConfigUtils;
 import top.mrxiaom.pluginbase.utils.Pair;
-import top.mrxiaom.pluginbase.utils.scheduler.FoliaLibScheduler;
 import top.mrxiaom.sweet.afdian.actions.ActionConsole;
 import top.mrxiaom.sweet.afdian.actions.ActionPlayer;
 import top.mrxiaom.sweet.afdian.database.ProceedOrderDatabase;
@@ -33,7 +32,6 @@ public class SweetAfdian extends BukkitPlugin {
                 .database(true)
                 .scanIgnore("top.mrxiaom.sweet.afdian.libs")
         );
-        scheduler = new FoliaLibScheduler(this);
 
         try {
             //noinspection ResultOfMethodCallIgnored
