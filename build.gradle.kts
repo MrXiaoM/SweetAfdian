@@ -9,14 +9,14 @@ plugins {
 
 buildscript {
     repositories.mavenCentral()
-    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.7.33")
+    dependencies.classpath("top.mrxiaom:LibrariesResolver-Gradle:1.8.1")
 }
 val base = LibraryHelper(project)
 
 group = "top.mrxiaom.sweet.afdian"
 version = "1.0.11"
 val targetJavaVersion = 8
-val pluginBaseModules = base.modules.run { listOf(library, actions, misc) }
+val pluginBaseModules = base.modules.run { listOf(library, message, actions, misc) }
 val shadowGroup = "top.mrxiaom.sweet.afdian.libs"
 
 repositories {
